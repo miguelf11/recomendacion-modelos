@@ -10,3 +10,11 @@ Una introducción al análisis de curvas ROC. Tomar en cuenta solamente las prim
 
 ### Archivos csv
 Referentes a la primer parte de la tarea sobre el sistema de recomendación.
+
+
+### Listo
+- Modificar su dataset de tal manera que no se lean los identificadores de los artículos como itemN sino por su tipo de contenido contenido/articuloN.
+
+## Developer
+- Miguel Figueira
+- correo: miguelachof11@gmail.com
