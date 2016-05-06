@@ -1,0 +1,83 @@
+---
+title: "recomendacion"
+author: "Miguel Figueira"
+date: "5 de mayo de 2016"
+output: html_document
+---
+
+
+# Sistemas de Recomendación
+
+### Cargar bibliotecas y setwd
+```{r,warning=FALSE}
+library("arules")
+library("dplyr")
+library("arulesViz")
+setwd("C:/Users/Alex/Documents/R/DM_T4/recomendacion-modelos")
+```
+
+
+### Función para asignar valores
+```{r}
+asignar <- function(valor){
+  #función para asignar valores
+  
+  valor <- gsub(pattern = "item", x = valor, replacement = "")
+  valor <- gsub(pattern = "}",x=valor,replacement = "")
+  valor <- gsub(pattern = "\\{",x=valor,replacement = "")
+  
+  a <- as.integer(unlist(strsplit(valor,split = ",")))
+  for(j in 1:length(a)){
+    if(j == 1){
+      h <- paste(valores[a[1]])
+    }else{
+      h <- paste(h,valores[a[j]],sep=",")
+    }
+  }
+  return(h)
+}
+```
+
+### read.csv
+
+```{r}
+ejemplo <- read.csv("data/ejemplo.csv")
+periodico <- read.csv("data/periodico.csv")
+```
+
+
+
+### delete useless feature
+```{r}
+
+
+ejemplo$X <- NULL
+periodico$X <- NULL
+```
+
+
+
+### arreglo con todos los temas
+```{r}
+contenido <- c("deporte","politica","variedades","internacional","nacionales",
+               "sucesos","comunidad","negocios","opinion")
+```
+
+
+### Preparando arreglos para combinarlos con pastie
+```{r}
+contenido <- rep(contenido,each=9) 
+
+articulo <- paste0("articulo",rep(x=1:9,times=9),sep="")
+```
+
+
+###  arreglo necesario para poder asignar correctamente contenido/articuloN
+```{r}
+valores <- paste(contenido,articulo,sep = "/")
+```
+
+### Asigna al dataframe la columna items con el formato pedido
+```{r}
+periodico$items <- sapply(periodico$articles, asignar)
+```
