@@ -15,7 +15,7 @@ Referentes a la primer parte de la tarea sobre el sistema de recomendación.
 ### Listo
 - 1.Modificar su dataset de tal manera que no se lean los identificadores de los artículos como itemN sino por su tipo de contenido contenido/articuloN.
 
-- 5. Conocer las 10 transacciones con mayor número de apariciones en el dataset.
+- 5.Conocer las 10 transacciones con mayor número de apariciones en el dataset.
 
 ### Falta
 
