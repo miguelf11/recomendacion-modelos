@@ -1,5 +1,6 @@
 library("arules")
 library("dplyr")
+library("arulesViz")
 
 setwd("C:/Users/Alex/Documents/R/DM_T4/recomendacion-modelos")
 
@@ -31,7 +32,6 @@ asignar <- function(valor){
 
 #delete useless feature
 ejemplo$X <- NULL
-periodico$X <- NULL
 
 
 #creando un arreglo para asignar los valores
@@ -48,6 +48,33 @@ valores <- paste(contenido,articulo,sep = "/")
 
 
 
-items <- sapply(periodico$articles, asignar)
-periodico$items <- items
+periodico$items <- sapply(periodico$articles, asignar)
+
+rm(articulo)
+rm(valores)
+rm(contenido)
+
+
+length(unique(periodico$X))
+length(unique(periodico$ID))
+
+periodico$entry <- as.POSIXct(periodico$entry, origin = "1970-01-01")
+periodico$exit <- as.POSIXct(periodico$exit, origin = "1970-01-01")
+periodico <- mutate(periodico, estadia = exit - entry)
+
+
+
+estadia <- periodico$estadia
+
+# 10 visitas con menor tiempo de estadia
+estadia <- estadia[order(estadia)]
+estadia[1:10]
+
+# 10 visitas con mayor tiempo de estadia
+estadia <-estadia[order(estadia,decreasing = T)]
+estadia[1:10]
+
+
+
+
 

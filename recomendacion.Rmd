@@ -81,3 +81,35 @@ valores <- paste(contenido,articulo,sep = "/")
 ```{r}
 periodico$items <- sapply(periodico$articles, asignar)
 ```
+
+### Lo transformo para poder calcular el tiempo de estadia de cada visita
+```{r}
+periodico$entry <- as.POSIXct(periodico$entry, origin = "1970-01-01")
+periodico$exit <- as.POSIXct(periodico$exit, origin = "1970-01-01")
+```
+
+
+###  Creo nueva columna llamada estadia que tiene el tiempo en segundos de estadia
+```{r}
+periodico <- mutate(periodico, estadia = exit - entry)
+estadia <- periodico$estadia
+```
+
+
+```{r}
+###  10 visitas con menor tiempo de estadia
+estadia <-estadia[order(estadia)]
+estadia[1:10]
+```
+
+# 10 visitas con mayor tiempo de estadia
+
+```{r}
+estadia <-estadia[order(estadia,decreasing = T)]
+estadia[1:10]
+```
+
+
+
+
+
