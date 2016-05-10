@@ -1,6 +1,7 @@
 library("arules")
 library("dplyr")
 library("arulesViz")
+library("reshape2")
 
 setwd("C:/Users/Alex/Documents/R/DM_T4/recomendacion-modelos")
 
@@ -17,13 +18,15 @@ asignar <- function(valor){
   valor <- gsub(pattern = "\\{",x=valor,replacement = "")
   
   a <- as.integer(unlist(strsplit(valor,split = ",")))
+  h <- "{"
   for(j in 1:length(a)){
     if(j == 1){
-      h <- paste(valores[a[1]])
+      h <- paste(h,valores[a[1]],sep="")
     }else{
       h <- paste(h,valores[a[j]],sep=",")
     }
   }
+  h <- paste(h,"}")
   return(h)
 }
 
@@ -51,7 +54,6 @@ valores <- paste(contenido,articulo,sep = "/")
 periodico$items <- sapply(periodico$articles, asignar)
 
 rm(articulo)
-rm(valores)
 rm(contenido)
 
 
@@ -73,6 +75,54 @@ estadia[1:10]
 # 10 visitas con mayor tiempo de estadia
 estadia <-estadia[order(estadia,decreasing = T)]
 estadia[1:10]
+
+
+
+
+
+aux <- periodico$items
+aux <- as.character(aux)
+aux <- gsub(pattern = "}",x=aux,replacement = "")
+aux <- gsub(pattern = "\\{",x=aux,replacement = "")
+aux <- gsub(pattern = " ",x=aux,replacement = "")
+
+aux <- aux
+
+#construyo la matriz de transacciones
+nuevo <- matrix(nrow=length(aux) , ncol = 81)
+nuevo[,] <- F
+nuevo <- as.data.frame(nuevo)
+colnames(nuevo) <- valores
+for (i in 1:length(aux)){
+  a <- unlist(strsplit(aux[i],split = ","))
+  print(paste("va por la: ",i))
+  for (j in a){
+    nuevo[i,j] <- T 
+  }
+}
+View(nuevo)
+
+
+trans <- as(nuevo, "transactions")
+summary(trans)
+unique(trans)
+
+itemFrequencyPlot(trans, topN = 10, "absolute")
+
+
+reglas <- apriori(trans, parameter = list(supp = 0.00003, conf = 0.8, target = "rules"))
+
+
+#in es cualquiera de los 2 , %ain% son los 2
+inspect(subset(reglas, subset = lhs %ain% c("politica/articulo1","deporte/articulo1")))
+
+inspect(reglas)
+
+
+
+
+
+
 
 
 
