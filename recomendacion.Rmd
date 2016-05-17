@@ -209,15 +209,14 @@ inspect(reglas)
 
 # 10 visitas con mayor tiempo de estadia
 ```{r}
-estadia <- periodico$estadia
-estadia <-estadia[order(estadia,decreasing = T)]
-estadia[1:10]
+periodico <- periodico[order(periodico$estadia, decreasing = T), ]
+periodico[1:10,c("items","estadia")]
 ```
 
 ###  10 visitas con menor tiempo de estadia
 ```{r}
-estadia <-estadia[order(estadia)]
-estadia[1:10]
+periodico <- periodico[order(periodico$estadia, decreasing = F), ]
+periodico[1:10,c("items","estadia")]
 ```
 
 

@@ -211,29 +211,29 @@ for (i in 1:length(aux)){
   print(paste(&quot;la cantidad de usuarios que pertenecen al grupo:&quot;,i,&quot;: &quot;,
               length(periodico$tipo.usuario[periodico$tipo.usuario == i])))
 }</code></pre>
-<pre><code>## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 1 :  13753&quot;
-## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 2 :  8537&quot;
-## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 3 :  16772&quot;
-## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 4 :  48059&quot;
-## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 5 :  9916&quot;
-## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 6 :  12121&quot;
-## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 7 :  15775&quot;
-## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 8 :  4065&quot;</code></pre>
+<pre><code>## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 1 :  12688&quot;
+## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 2 :  45168&quot;
+## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 3 :  17329&quot;
+## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 4 :  4684&quot;
+## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 5 :  3645&quot;
+## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 6 :  14561&quot;
+## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 7 :  17212&quot;
+## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 8 :  13711&quot;</code></pre>
 </div>
 <div id="proporcion-cada-tipo-de-usuario" class="section level3">
 <h3>Proporcion cada tipo de usuario</h3>
 <pre class="r"><code>for (i in 1:8){
   print(paste(&quot;la proporción de usuarios que pertenecen al grupo:&quot;,i,&quot;: &quot;,
-              length(periodico$tipo.usuario[periodico$kmedias == i])/length(periodico$tipo.usuario)))
+              length(periodico$tipo.usuario[periodico$tipo.usuario == i])/length(periodico$tipo.usuario)))
 }</code></pre>
-<pre><code>## [1] &quot;la proporción de usuarios que pertenecen al grupo: 1 :  0&quot;
-## [1] &quot;la proporción de usuarios que pertenecen al grupo: 2 :  0&quot;
-## [1] &quot;la proporción de usuarios que pertenecen al grupo: 3 :  0&quot;
-## [1] &quot;la proporción de usuarios que pertenecen al grupo: 4 :  0&quot;
-## [1] &quot;la proporción de usuarios que pertenecen al grupo: 5 :  0&quot;
-## [1] &quot;la proporción de usuarios que pertenecen al grupo: 6 :  0&quot;
-## [1] &quot;la proporción de usuarios que pertenecen al grupo: 7 :  0&quot;
-## [1] &quot;la proporción de usuarios que pertenecen al grupo: 8 :  0&quot;</code></pre>
+<pre><code>## [1] &quot;la proporción de usuarios que pertenecen al grupo: 1 :  0.098358114079288&quot;
+## [1] &quot;la proporción de usuarios que pertenecen al grupo: 2 :  0.350144963487806&quot;
+## [1] &quot;la proporción de usuarios que pertenecen al grupo: 3 :  0.134335416052962&quot;
+## [1] &quot;la proporción de usuarios que pertenecen al grupo: 4 :  0.0363106404750461&quot;
+## [1] &quot;la proporción de usuarios que pertenecen al grupo: 5 :  0.0282562520349153&quot;
+## [1] &quot;la proporción de usuarios que pertenecen al grupo: 6 :  0.112877719034404&quot;
+## [1] &quot;la proporción de usuarios que pertenecen al grupo: 7 :  0.133428425246903&quot;
+## [1] &quot;la proporción de usuarios que pertenecen al grupo: 8 :  0.106288469588676&quot;</code></pre>
 </div>
 </div>
 <div id="actividad-3---recomendar-articulo" class="section level2">
@@ -289,12 +289,12 @@ summary(trans)</code></pre>
 ## Absolute minimum support count: 3 
 ## 
 ## set item appearances ...[0 item(s)] done [0.00s].
-## set transactions ...[81 item(s), 128998 transaction(s)] done [0.04s].
-## sorting and recoding items ... [81 item(s)] done [0.01s].
-## creating transaction tree ... done [0.11s].
-## checking subsets of size 1 2 3 4 5 6 7 done [0.13s].
-## writing ... [244 rule(s)] done [0.01s].
-## creating S4 object  ... done [0.05s].</code></pre>
+## set transactions ...[81 item(s), 128998 transaction(s)] done [0.03s].
+## sorting and recoding items ... [81 item(s)] done [0.00s].
+## creating transaction tree ... done [0.09s].
+## checking subsets of size 1 2 3 4 5 6 7 done [0.06s].
+## writing ... [244 rule(s)] done [0.00s].
+## creating S4 object  ... done [0.02s].</code></pre>
 <pre class="r"><code>#in es cualquiera de los 2 , %ain% son los 2
 inspect(subset(reglas, subset = lhs %ain% c(&quot;politica/articulo1&quot;,&quot;deporte/articulo1&quot;)))</code></pre>
 <pre><code>##   lhs                      rhs                      support confidence     lift
@@ -1265,17 +1265,56 @@ inspect(subset(reglas, subset = lhs %ain% c(&quot;politica/articulo1&quot;,&quot
 </div>
 <div id="visitas-con-mayor-tiempo-de-estadia" class="section level1">
 <h1>10 visitas con mayor tiempo de estadia</h1>
-<pre class="r"><code>estadia &lt;- periodico$estadia
-estadia &lt;-estadia[order(estadia,decreasing = T)]
-estadia[1:10]</code></pre>
-<pre><code>## Time differences in secs
-##  [1] 12264 12234 11743 11597 11508 11481 11421 11419 11381 11372</code></pre>
+<pre class="r"><code>periodico &lt;- periodico[order(periodico$estadia, decreasing = T), ]
+periodico[1:10,c(&quot;items&quot;,&quot;estadia&quot;)]</code></pre>
+<pre><code>##                                                                                                                items
+## 93676                                                                          politica/articulo7,negocios/articulo7
+## 7511                                                                          politica/articulo5,comunidad/articulo9
+## 80516                                                   politica/articulo5,nacionales/articulo1,nacionales/articulo9
+## 122879                                                                         comunidad/articulo3,opinion/articulo6
+## 130641                                                  internacional/articulo8,negocios/articulo8,opinion/articulo9
+## 66995                                                         deporte/articulo8,deporte/articulo9,negocios/articulo3
+## 111953                                                                        nacionales/articulo3,sucesos/articulo6
+## 23099                                     deporte/articulo3,deporte/articulo5,comunidad/articulo9,negocios/articulo8
+## 55628  deporte/articulo4,deporte/articulo5,deporte/articulo8,deporte/articulo9,politica/articulo2,negocios/articulo8
+## 48007                                                                           deporte/articulo4,politica/articulo8
+##           estadia
+## 93676  12264 secs
+## 7511   12234 secs
+## 80516  11743 secs
+## 122879 11597 secs
+## 130641 11508 secs
+## 66995  11481 secs
+## 111953 11421 secs
+## 23099  11419 secs
+## 55628  11381 secs
+## 48007  11372 secs</code></pre>
 <div id="visitas-con-menor-tiempo-de-estadia" class="section level3">
 <h3>10 visitas con menor tiempo de estadia</h3>
-<pre class="r"><code>estadia &lt;-estadia[order(estadia)]
-estadia[1:10]</code></pre>
-<pre><code>## Time differences in secs
-##  [1] 21 21 21 21 21 21 21 21 21 21</code></pre>
+<pre class="r"><code>periodico &lt;- periodico[order(periodico$estadia, decreasing = F), ]
+periodico[1:10,c(&quot;items&quot;,&quot;estadia&quot;)]</code></pre>
+<pre><code>##                                                                             items
+## 1000                     deporte/articulo8,politica/articulo2,comunidad/articulo5
+## 1172                                       deporte/articulo1,nacionales/articulo2
+## 2144                                                           politica/articulo2
+## 4698                    deporte/articulo7,politica/articulo5,variedades/articulo6
+## 5216     deporte/articulo5,deporte/articulo7,deporte/articulo8,politica/articulo5
+## 5765                      deporte/articulo3,politica/articulo9,negocios/articulo9
+## 6258                       deporte/articulo4,deporte/articulo7,politica/articulo6
+## 11346                                         deporte/articulo7,deporte/articulo9
+## 12413                                        deporte/articulo9,negocios/articulo5
+## 13046 deporte/articulo1,deporte/articulo4,nacionales/articulo5,negocios/articulo6
+##       estadia
+## 1000  21 secs
+## 1172  21 secs
+## 2144  21 secs
+## 4698  21 secs
+## 5216  21 secs
+## 5765  21 secs
+## 6258  21 secs
+## 11346 21 secs
+## 12413 21 secs
+## 13046 21 secs</code></pre>
 </div>
 <div id="actividad-5" class="section level2">
 <h2>Actividad 5</h2>
