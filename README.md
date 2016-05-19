@@ -12,10 +12,6 @@ Una introducción al análisis de curvas ROC. Tomar en cuenta solamente las prim
 Referentes a la primer parte de la tarea sobre el sistema de recomendación.
 
 
-
-### Falta
-- Curva ROC
-
 ## Developer
 - Miguel Figueira
 - correo: miguelachof11@gmail.com
