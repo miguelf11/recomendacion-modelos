@@ -57,6 +57,9 @@ periodico$ID <- NULL
 
 ## Eliminar transacciones bot
 
+
+
+
 ### Lo transformo para poder calcular el tiempo de estadia de cada visita
 ```{r}
 periodico$entry <- as.POSIXct(periodico$entry, origin = "1970-01-01")
@@ -69,18 +72,36 @@ periodico$exit <- as.POSIXct(periodico$exit, origin = "1970-01-01")
 periodico <- mutate(periodico, estadia = exit - entry)
 ```
 
-### Números de bots
+
+### Hallar número de artículos por transacción
 ```{r}
-print(paste("tiene:",length(periodico$estadia[periodico$estadia <= 20]),"bots"))
+periodico$num.articulos <- rep(0,length(periodico$articles))
+for(i in 1:length(periodico$num.articulos)){
+  valor <- gsub(pattern = "}",x=periodico$articles[i],replacement = "")
+  valor <- gsub(pattern = "\\{",x=valor,replacement = "")
+  valor <- gsub(pattern = " ",x=valor,replacement = "")
+  periodico$num.articulos[i] <- length(unlist(strsplit(valor,split = ",")))
+}
 ```
 
 
-#### Delete bots
-```{r}
-periodico <- periodico[periodico$estadia > 20, ]
-```
-Elimino todas las instancias cuyo tiempo de estadia sea menor a 20 segundos
 
+### Filtrar bots
+
+Importante: coloque q menos de 20 seg por artículo es bot (peor de los casos) si ya cumple con los 20 seg ya por artículo ya no es considerado bot
+```{r}
+periodico <- mutate(periodico, tiempo = estadia - (20 * num.articulos))
+periodico <- periodico[periodico$tiempo >= 0, ]
+```
+
+
+### Delete unnecesay features
+```{r}
+periodico$entry <- NULL
+periodico$exit <- NULL
+periodico$tiempo <- NULL
+periodico$num.articulos <- NULL
+```
 
 
 ## Actividad 1
@@ -143,7 +164,7 @@ for (i in 1:length(aux)){
   }
 }
 ```
-Nota: en el rmd solo dejaremos el codigo para crear la matriz , mas no la evaluaremos ya que toma su tiempo de ejecución , se cargará directamente desde un archivo.csv.
+Nota: en el rmd solo dejaremos el codigo para crear la matriz , mas no la evaluaremos ya que toma su tiempo de ejecución , se cargará directamente desde un RData.
 
 ```{r,eval = TRUE,echo = FALSE}
 load("data/nuevo.RData")
@@ -185,23 +206,62 @@ for (i in 1:8){
 
 ## Actividad 3 - Recomendar Artículo
 
+### Función recomendar artículo
+
+Tomo un soporte "base" de 0.0009 y en base a ese tratar de conseguir las recomendaciones , de no conseguir entra un ciclo de hasta 30 ,para conseguir un valor el minSupport que cumpla con confianza 0.6 , en caso de no conseguir ninguno se usa %in% para que pueda generar más opciones pero con confianza 0.7 y un supp 0.00005
 ```{r}
-trans <- as(nuevo, "transactions")
-summary(trans)
-unique(trans)
+recomendar <- function(vector){
+  trans <- as(nuevo, "transactions")
+  sup = 0.0009
+  reglas <- apriori(trans, parameter = list(supp =  sup,
+                                            conf = 0.6, target = "rules"))
+  
+  reglas1 <- sort(subset(reglas,subset = lhs %ain% vector),by="confidence")
+  
+  
+  cantidad.reglas <- length(reglas1)
+  
+  if(cantidad.reglas == 0){
+    i <- 0
+    while(cantidad.reglas > 0 &  i < 20){
+      if(i < 10){
+        sup <- sup - (sup  * 0.1)
+      }else{
+        sup <- sup - (sup  * 0.2)
+      }
+      reglas <- apriori(trans, parameter = list(supp =  sup,
+                                                conf = 0.6, target = "rules"))
+      
+      reglas1 <- sort(subset(reglas,subset = lhs %ain% vector),by="confidence")
+      
+      cantidad.reglas <- length(reglas1)
+      
+      i <- i + 1 
+    }
+    if(cantidad.reglas == 0){
+      sup = 0.00003
+      reglas <- apriori(trans, parameter = list(supp =  sup,
+                                                conf = 0.7, target = "rules"))
+      
+      reglas1 <- sort(subset(reglas,subset = lhs %in% vector),by="confidence")
+      
+      cantidad.reglas <- length(reglas1)
+    }
+  }
+  salida <- inspect(reglas1@rhs[1])
+  return(salida)
+  
+}
 
-
-
-
-reglas <- apriori(trans, parameter = list(supp = 0.00003, conf = 0.8, target = "rules"))
-
-
-#in es cualquiera de los 2 , %ain% son los 2
-inspect(subset(reglas, subset = lhs %ain% c("politica/articulo1","deporte/articulo1")))
-
-inspect(reglas)
 ```
 
+
+### Ejemplo de la funcion Usando función
+```{r}
+vector <- c("politica/articulo1","deporte/articulo1")
+
+recomendar(vector)
+```
 
 
 
@@ -223,7 +283,6 @@ periodico[1:10,c("items","estadia")]
 
 ## Actividad 5
 ```{r}
+trans <- as(nuevo, "transactions")
 itemFrequencyPlot(trans, topN = 10, "absolute")
 ```
-
-

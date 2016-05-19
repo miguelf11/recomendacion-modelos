@@ -1,0 +1,55 @@
+# Generar curva
+real = c(2, 2, 1, 2, 2, 2, 2, 1,
+         2, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1)
+scores = c(0.9, 0.8, 0.7, 0.6, 0.55, 0.54, 0.53, 0.52, 0.5, 0.5,
+           0.5, 0.5, 0.38, 0.37, 0.36, 0.35, 0.34, 0.33, 0.30, 0.1)
+target = 2
+
+P <- length(real[real == target])
+N <- length(real[real != target])
+# real <- lsorted
+# R es (x,y)
+real <- sort(real,decreasing = T)
+FP <- 0
+TP <- 0
+ejex <- c()
+ejey <- c()
+#f(i) son los scores
+fprev <- -9999999
+i <- 1
+while(i < length(real)){
+  if(scores[i] != fprev){
+    ejex <- c(ejex,(FP / N))
+    ejey <- c(ejey,(TP / P))
+    #push(FP/N, TP/P) onto R
+    fprev <- scores[i]
+  }
+  if(real[i] == target){
+    TP <- TP + 1
+    points(ejex, ejey, col = "red")
+  }else{
+    FP <- FP +1
+    points(ejex, ejey, col = "red")
+  }
+  i <- i+1
+}
+puntosx <- c(puntosx,1)
+puntosy <- c(puntosy,1)
+points(1, 1, col = "red")
+ejex <- c(ejex,(FP / N))
+ejey <- c(ejey,(TP / P))
+
+plot(x = ejex,
+     y = ejey,
+     xlim=c(0, 1),
+     ylim=c(0, 1),
+     type = "l",
+     main = "Curva ROC",
+     xlab = "Falso Positivo",
+     ylab = "Verdadero Positivo" )
+
+lab <- c("inf")
+lab <- append(lab,sort(unique(scores), decreasing = T))
+text(ejex, ejey, labels=lab, cex= 0.7, pos = 2)
+
+

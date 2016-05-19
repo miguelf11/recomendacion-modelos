@@ -134,15 +134,28 @@ periodico$exit &lt;- as.POSIXct(periodico$exit, origin = &quot;1970-01-01&quot;)
 <h3>Creo nueva columna llamada estadia que tiene el tiempo en segundos de estadia</h3>
 <pre class="r"><code>periodico &lt;- mutate(periodico, estadia = exit - entry)</code></pre>
 </div>
-<div id="numeros-de-bots" class="section level3">
-<h3>Números de bots</h3>
-<pre class="r"><code>print(paste(&quot;tiene:&quot;,length(periodico$estadia[periodico$estadia &lt;= 20]),&quot;bots&quot;))</code></pre>
-<pre><code>## [1] &quot;tiene: 2302 bots&quot;</code></pre>
-<div id="delete-bots" class="section level4">
-<h4>Delete bots</h4>
-<pre class="r"><code>periodico &lt;- periodico[periodico$estadia &gt; 20, ]</code></pre>
-<p>Elimino todas las instancias cuyo tiempo de estadia sea menor a 20 segundos</p>
+<div id="hallar-numero-de-articulos-por-transaccion" class="section level3">
+<h3>Hallar número de artículos por transacción</h3>
+<pre class="r"><code>periodico$num.articulos &lt;- rep(0,length(periodico$articles))
+for(i in 1:length(periodico$num.articulos)){
+  valor &lt;- gsub(pattern = &quot;}&quot;,x=periodico$articles[i],replacement = &quot;&quot;)
+  valor &lt;- gsub(pattern = &quot;\\{&quot;,x=valor,replacement = &quot;&quot;)
+  valor &lt;- gsub(pattern = &quot; &quot;,x=valor,replacement = &quot;&quot;)
+  periodico$num.articulos[i] &lt;- length(unlist(strsplit(valor,split = &quot;,&quot;)))
+}</code></pre>
 </div>
+<div id="filtrar-bots" class="section level3">
+<h3>Filtrar bots</h3>
+<p>Importante: coloque q menos de 20 seg por artículo es bot (peor de los casos) si ya cumple con los 20 seg ya por artículo ya no es considerado bot</p>
+<pre class="r"><code>periodico &lt;- mutate(periodico, tiempo = estadia - (20 * num.articulos))
+periodico &lt;- periodico[periodico$tiempo &gt;= 0, ]</code></pre>
+</div>
+<div id="delete-unnecesay-features" class="section level3">
+<h3>Delete unnecesay features</h3>
+<pre class="r"><code>periodico$entry &lt;- NULL
+periodico$exit &lt;- NULL
+periodico$tiempo &lt;- NULL
+periodico$num.articulos &lt;- NULL</code></pre>
 </div>
 </div>
 <div id="actividad-1" class="section level2">
@@ -191,7 +204,7 @@ for (i in 1:length(aux)){
     nuevo[i,j] &lt;- T 
   }
 }</code></pre>
-<p>Nota: en el rmd solo dejaremos el codigo para crear la matriz , mas no la evaluaremos ya que toma su tiempo de ejecución , se cargará directamente desde un archivo.csv.</p>
+<p>Nota: en el rmd solo dejaremos el codigo para crear la matriz , mas no la evaluaremos ya que toma su tiempo de ejecución , se cargará directamente desde un RData.</p>
 </div>
 </div>
 <div id="actividad-2" class="section level2">
@@ -211,14 +224,14 @@ for (i in 1:length(aux)){
   print(paste(&quot;la cantidad de usuarios que pertenecen al grupo:&quot;,i,&quot;: &quot;,
               length(periodico$tipo.usuario[periodico$tipo.usuario == i])))
 }</code></pre>
-<pre><code>## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 1 :  12688&quot;
-## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 2 :  45168&quot;
-## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 3 :  17329&quot;
-## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 4 :  4684&quot;
-## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 5 :  3645&quot;
-## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 6 :  14561&quot;
-## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 7 :  17212&quot;
-## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 8 :  13711&quot;</code></pre>
+<pre><code>## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 1 :  20337&quot;
+## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 2 :  3136&quot;
+## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 3 :  52622&quot;
+## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 4 :  16500&quot;
+## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 5 :  3521&quot;
+## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 6 :  6836&quot;
+## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 7 :  13196&quot;
+## [1] &quot;la cantidad de usuarios que pertenecen al grupo: 8 :  8646&quot;</code></pre>
 </div>
 <div id="proporcion-cada-tipo-de-usuario" class="section level3">
 <h3>Proporcion cada tipo de usuario</h3>
@@ -226,59 +239,74 @@ for (i in 1:length(aux)){
   print(paste(&quot;la proporción de usuarios que pertenecen al grupo:&quot;,i,&quot;: &quot;,
               length(periodico$tipo.usuario[periodico$tipo.usuario == i])/length(periodico$tipo.usuario)))
 }</code></pre>
-<pre><code>## [1] &quot;la proporción de usuarios que pertenecen al grupo: 1 :  0.098358114079288&quot;
-## [1] &quot;la proporción de usuarios que pertenecen al grupo: 2 :  0.350144963487806&quot;
-## [1] &quot;la proporción de usuarios que pertenecen al grupo: 3 :  0.134335416052962&quot;
-## [1] &quot;la proporción de usuarios que pertenecen al grupo: 4 :  0.0363106404750461&quot;
-## [1] &quot;la proporción de usuarios que pertenecen al grupo: 5 :  0.0282562520349153&quot;
-## [1] &quot;la proporción de usuarios que pertenecen al grupo: 6 :  0.112877719034404&quot;
-## [1] &quot;la proporción de usuarios que pertenecen al grupo: 7 :  0.133428425246903&quot;
-## [1] &quot;la proporción de usuarios que pertenecen al grupo: 8 :  0.106288469588676&quot;</code></pre>
+<pre><code>## [1] &quot;la proporción de usuarios que pertenecen al grupo: 1 :  0.162964565604116&quot;
+## [1] &quot;la proporción de usuarios que pertenecen al grupo: 2 :  0.025129413273074&quot;
+## [1] &quot;la proporción de usuarios que pertenecen al grupo: 3 :  0.421670913665721&quot;
+## [1] &quot;la proporción de usuarios que pertenecen al grupo: 4 :  0.13221789509111&quot;
+## [1] &quot;la proporción de usuarios que pertenecen al grupo: 5 :  0.0282144974918666&quot;
+## [1] &quot;la proporción de usuarios que pertenecen al grupo: 6 :  0.0547782745965351&quot;
+## [1] &quot;la proporción de usuarios que pertenecen al grupo: 7 :  0.105742263249836&quot;
+## [1] &quot;la proporción de usuarios que pertenecen al grupo: 8 :  0.0692821770277417&quot;</code></pre>
 </div>
 </div>
 <div id="actividad-3---recomendar-articulo" class="section level2">
 <h2>Actividad 3 - Recomendar Artículo</h2>
-<pre class="r"><code>trans &lt;- as(nuevo, &quot;transactions&quot;)
-summary(trans)</code></pre>
-<pre><code>## transactions as itemMatrix in sparse format with
-##  128998 rows (elements/itemsets/transactions) and
-##  81 columns (items) and a density of 0.03700919 
-## 
-## most frequent items:
-## deporte/articulo1 deporte/articulo4 deporte/articulo7 deporte/articulo3 
-##             22396             22193             22018             19986 
-## deporte/articulo9           (Other) 
-##             19962            280148 
-## 
-## element (itemset/transaction) length distribution:
-## sizes
-##     1     2     3     4     5     6     7     8     9    10    11 
-## 17623 34910 34807 23288 11497  4674  1607   458   104    21     9 
-## 
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   1.000   2.000   3.000   2.998   4.000  11.000 
-## 
-## includes extended item information - examples:
-##              labels         variables levels
-## 1 deporte/articulo1 deporte/articulo1   TRUE
-## 2 deporte/articulo2 deporte/articulo2   TRUE
-## 3 deporte/articulo3 deporte/articulo3   TRUE
-## 
-## includes extended transaction information - examples:
-##   transactionID
-## 1             1
-## 2             2
-## 3             3</code></pre>
-<pre class="r"><code>unique(trans)</code></pre>
-<pre><code>## transactions in sparse format with
-##  53654 transactions (rows) and
-##  81 items (columns)</code></pre>
-<pre class="r"><code>reglas &lt;- apriori(trans, parameter = list(supp = 0.00003, conf = 0.8, target = &quot;rules&quot;))</code></pre>
+<div id="funcion-recomendar-articulo" class="section level3">
+<h3>Función recomendar artículo</h3>
+<p>Tomo un soporte “base” de 0.0009 y en base a ese tratar de conseguir las recomendaciones , de no conseguir entra un ciclo de hasta 30 ,para conseguir un valor el minSupport que cumpla con confianza 0.6 , en caso de no conseguir ninguno se usa %in% para que pueda generar más opciones pero con confianza 0.7 y un supp 0.00005</p>
+<pre class="r"><code>recomendar &lt;- function(vector){
+  trans &lt;- as(nuevo, &quot;transactions&quot;)
+  sup = 0.0009
+  reglas &lt;- apriori(trans, parameter = list(supp =  sup,
+                                            conf = 0.6, target = &quot;rules&quot;))
+  
+  reglas1 &lt;- sort(subset(reglas,subset = lhs %ain% vector),by=&quot;confidence&quot;)
+  
+  
+  cantidad.reglas &lt;- length(reglas1)
+  
+  if(cantidad.reglas == 0){
+    i &lt;- 0
+    while(cantidad.reglas &gt; 0 &amp;  i &lt; 30){
+      if(i &lt; 10){
+        sup &lt;- sup - (sup  * 0.1)
+      }else{
+        sup &lt;- sup - (sup  * 0.2)
+      }
+      reglas &lt;- apriori(trans, parameter = list(supp =  sup,
+                                                conf = 0.6, target = &quot;rules&quot;))
+      
+      reglas1 &lt;- sort(subset(reglas,subset = lhs %ain% vector),by=&quot;confidence&quot;)
+      
+      cantidad.reglas &lt;- length(reglas1)
+      
+      i &lt;- i + 1 
+    }
+    if(cantidad.reglas == 0){
+      sup = 0.00001
+      reglas &lt;- apriori(trans, parameter = list(supp =  sup,
+                                                conf = 0.7, target = &quot;rules&quot;))
+      
+      reglas1 &lt;- sort(subset(reglas,subset = lhs %in% vector),by=&quot;confidence&quot;)
+      
+      cantidad.reglas &lt;- length(reglas1)
+    }
+  }
+  salida &lt;- inspect(reglas1@rhs[1])
+  return(salida)
+  
+}</code></pre>
+</div>
+<div id="ejemplo-de-la-funcion-usando-funcion" class="section level3">
+<h3>Ejemplo de la funcion Usando función</h3>
+<pre class="r"><code>vector &lt;- c(&quot;politica/articulo1&quot;,&quot;deporte/articulo1&quot;)
+
+recomendar(vector)</code></pre>
 <pre><code>## Apriori
 ## 
 ## Parameter specification:
 ##  confidence minval smax arem  aval originalSupport support minlen maxlen
-##         0.8    0.1    1 none FALSE            TRUE   3e-05      1     10
+##         0.6    0.1    1 none FALSE            TRUE   9e-04      1     10
 ##  target   ext
 ##   rules FALSE
 ## 
@@ -286,978 +314,41 @@ summary(trans)</code></pre>
 ##  filter tree heap memopt load sort verbose
 ##     0.1 TRUE TRUE  FALSE TRUE    2    TRUE
 ## 
-## Absolute minimum support count: 3 
+## Absolute minimum support count: 112 
 ## 
 ## set item appearances ...[0 item(s)] done [0.00s].
-## set transactions ...[81 item(s), 128998 transaction(s)] done [0.03s].
-## sorting and recoding items ... [81 item(s)] done [0.00s].
+## set transactions ...[81 item(s), 124794 transaction(s)] done [0.03s].
+## sorting and recoding items ... [81 item(s)] done [0.01s].
+## creating transaction tree ... done [0.07s].
+## checking subsets of size 1 2 3 4 5 done [0.01s].
+## writing ... [0 rule(s)] done [0.00s].
+## creating S4 object  ... done [0.02s].
+## Apriori
+## 
+## Parameter specification:
+##  confidence minval smax arem  aval originalSupport support minlen maxlen
+##         0.7    0.1    1 none FALSE            TRUE   1e-05      1     10
+##  target   ext
+##   rules FALSE
+## 
+## Algorithmic control:
+##  filter tree heap memopt load sort verbose
+##     0.1 TRUE TRUE  FALSE TRUE    2    TRUE
+## 
+## Absolute minimum support count: 1</code></pre>
+<pre><code>## Warning in apriori(trans, parameter = list(supp = sup, conf = 0.7, target = &quot;rules&quot;)): You chose a very low absolute support count of 1. You might run out of memory! Increase minimum support.</code></pre>
+<pre><code>## set item appearances ...[0 item(s)] done [0.00s].
+## set transactions ...[81 item(s), 124794 transaction(s)] done [0.03s].
+## sorting and recoding items ... [81 item(s)] done [0.02s].
 ## creating transaction tree ... done [0.09s].
-## checking subsets of size 1 2 3 4 5 6 7 done [0.06s].
-## writing ... [244 rule(s)] done [0.00s].
-## creating S4 object  ... done [0.02s].</code></pre>
-<pre class="r"><code>#in es cualquiera de los 2 , %ain% son los 2
-inspect(subset(reglas, subset = lhs %ain% c(&quot;politica/articulo1&quot;,&quot;deporte/articulo1&quot;)))</code></pre>
-<pre><code>##   lhs                      rhs                      support confidence     lift
-## 1 {deporte/articulo1,                                                          
-##    deporte/articulo3,                                                          
-##    politica/articulo1,                                                         
-##    opinion/articulo9}   =&gt; {deporte/articulo7} 3.100823e-05        0.8 4.687002
-## 2 {deporte/articulo1,                                                          
-##    deporte/articulo7,                                                          
-##    politica/articulo1,                                                         
-##    opinion/articulo9}   =&gt; {deporte/articulo3} 3.100823e-05        0.8 5.163534
-## 3 {deporte/articulo1,                                                          
-##    deporte/articulo2,                                                          
-##    politica/articulo1,                                                         
-##    politica/articulo4}  =&gt; {deporte/articulo8} 3.100823e-05        1.0 7.162179
-## 4 {deporte/articulo1,                                                          
-##    deporte/articulo6,                                                          
-##    politica/articulo1,                                                         
-##    comunidad/articulo6} =&gt; {deporte/articulo5} 3.100823e-05        1.0 7.274460
-## 5 {deporte/articulo1,                                                          
-##    deporte/articulo6,                                                          
-##    politica/articulo1,                                                         
-##    politica/articulo6}  =&gt; {deporte/articulo4} 3.100823e-05        0.8 4.650043
-## 6 {deporte/articulo1,                                                          
-##    deporte/articulo4,                                                          
-##    politica/articulo1,                                                         
-##    politica/articulo6}  =&gt; {deporte/articulo6} 3.100823e-05        0.8 5.188457</code></pre>
-<pre class="r"><code>inspect(reglas)</code></pre>
-<pre><code>##     lhs                          rhs                         support confidence      lift
-## 1   {deporte/articulo2,                                                                  
-##      comunidad/articulo4,                                                                
-##      comunidad/articulo8}     =&gt; {comunidad/articulo9}  3.100823e-05  1.0000000 31.234383
-## 2   {politica/articulo2,                                                                 
-##      comunidad/articulo4,                                                                
-##      comunidad/articulo9}     =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 3   {deporte/articulo7,                                                                  
-##      politica/articulo8,                                                                 
-##      comunidad/articulo4}     =&gt; {deporte/articulo5}    3.100823e-05  0.8000000  5.819568
-## 4   {deporte/articulo8,                                                                  
-##      politica/articulo8,                                                                 
-##      comunidad/articulo7}     =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 5   {deporte/articulo6,                                                                  
-##      variedades/articulo3,                                                               
-##      opinion/articulo4}       =&gt; {deporte/articulo3}    3.100823e-05  1.0000000  6.454418
-## 6   {deporte/articulo3,                                                                  
-##      variedades/articulo3,                                                               
-##      opinion/articulo4}       =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 7   {deporte/articulo3,                                                                  
-##      variedades/articulo3,                                                               
-##      opinion/articulo4}       =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 8   {deporte/articulo6,                                                                  
-##      politica/articulo5,                                                                 
-##      opinion/articulo1}       =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 9   {deporte/articulo7,                                                                  
-##      deporte/articulo9,                                                                  
-##      opinion/articulo1}       =&gt; {deporte/articulo5}    3.100823e-05  0.8000000  5.819568
-## 10  {deporte/articulo7,                                                                  
-##      deporte/articulo9,                                                                  
-##      opinion/articulo1}       =&gt; {deporte/articulo3}    3.100823e-05  0.8000000  5.163534
-## 11  {deporte/articulo2,                                                                  
-##      politica/articulo8,                                                                 
-##      sucesos/articulo3}       =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 12  {politica/articulo2,                                                                 
-##      politica/articulo7,                                                                 
-##      sucesos/articulo6}       =&gt; {nacionales/articulo1} 3.100823e-05  0.8000000 27.997396
-## 13  {deporte/articulo4,                                                                  
-##      deporte/articulo6,                                                                  
-##      sucesos/articulo6}       =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 14  {deporte/articulo3,                                                                  
-##      internacional/articulo8,                                                            
-##      sucesos/articulo2}       =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 15  {deporte/articulo3,                                                                  
-##      sucesos/articulo2,                                                                  
-##      negocios/articulo9}      =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 16  {deporte/articulo2,                                                                  
-##      internacional/articulo9,                                                            
-##      sucesos/articulo2}       =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 17  {deporte/articulo5,                                                                  
-##      sucesos/articulo8,                                                                  
-##      comunidad/articulo3}     =&gt; {deporte/articulo3}    3.100823e-05  0.8000000  5.163534
-## 18  {deporte/articulo8,                                                                  
-##      politica/articulo6,                                                                 
-##      sucesos/articulo5}       =&gt; {deporte/articulo2}    3.100823e-05  0.8000000  5.753381
-## 19  {deporte/articulo9,                                                                  
-##      variedades/articulo3,                                                               
-##      sucesos/articulo5}       =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 20  {variedades/articulo1,                                                               
-##      variedades/articulo5,                                                               
-##      comunidad/articulo6}     =&gt; {variedades/articulo7} 3.876029e-05  1.0000000 63.234314
-## 21  {deporte/articulo1,                                                                  
-##      variedades/articulo1,                                                               
-##      nacionales/articulo5}    =&gt; {variedades/articulo4} 3.100823e-05  0.8000000 49.118705
-## 22  {variedades/articulo4,                                                               
-##      variedades/articulo5,                                                               
-##      nacionales/articulo5}    =&gt; {variedades/articulo7} 3.100823e-05  0.8000000 50.587451
-## 23  {variedades/articulo7,                                                               
-##      variedades/articulo9,                                                               
-##      nacionales/articulo6}    =&gt; {variedades/articulo4} 3.100823e-05  0.8000000 49.118705
-## 24  {deporte/articulo6,                                                                  
-##      variedades/articulo7,                                                               
-##      comunidad/articulo9}     =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 25  {variedades/articulo8,                                                               
-##      variedades/articulo9,                                                               
-##      nacionales/articulo5}    =&gt; {variedades/articulo4} 3.876029e-05  0.8333333 51.165318
-## 26  {variedades/articulo4,                                                               
-##      negocios/articulo6,                                                                 
-##      opinion/articulo6}       =&gt; {variedades/articulo6} 3.100823e-05  0.8000000 24.670906
-## 27  {deporte/articulo6,                                                                  
-##      negocios/articulo2,                                                                 
-##      negocios/articulo3}      =&gt; {deporte/articulo7}    3.876029e-05  0.8333333  4.882293
-## 28  {deporte/articulo9,                                                                  
-##      negocios/articulo2,                                                                 
-##      negocios/articulo3}      =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 29  {deporte/articulo6,                                                                  
-##      politica/articulo4,                                                                 
-##      negocios/articulo2}      =&gt; {deporte/articulo9}    3.876029e-05  1.0000000  6.462178
-## 30  {deporte/articulo3,                                                                  
-##      politica/articulo1,                                                                 
-##      negocios/articulo2}      =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 31  {politica/articulo5,                                                                 
-##      comunidad/articulo8,                                                                
-##      negocios/articulo8}      =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 32  {deporte/articulo6,                                                                  
-##      negocios/articulo8,                                                                 
-##      opinion/articulo3}       =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 33  {deporte/articulo8,                                                                  
-##      politica/articulo1,                                                                 
-##      negocios/articulo8}      =&gt; {deporte/articulo5}    3.100823e-05  0.8000000  5.819568
-## 34  {deporte/articulo3,                                                                  
-##      politica/articulo1,                                                                 
-##      negocios/articulo8}      =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 35  {deporte/articulo5,                                                                  
-##      variedades/articulo8,                                                               
-##      negocios/articulo5}      =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 36  {deporte/articulo6,                                                                  
-##      variedades/articulo9,                                                               
-##      negocios/articulo5}      =&gt; {deporte/articulo2}    3.100823e-05  0.8000000  5.753381
-## 37  {deporte/articulo2,                                                                  
-##      comunidad/articulo5,                                                                
-##      negocios/articulo3}      =&gt; {deporte/articulo7}    3.876029e-05  0.8333333  4.882293
-## 38  {deporte/articulo6,                                                                  
-##      comunidad/articulo5,                                                                
-##      negocios/articulo6}      =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 39  {deporte/articulo7,                                                                  
-##      nacionales/articulo7,                                                               
-##      comunidad/articulo5}     =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 40  {deporte/articulo7,                                                                  
-##      politica/articulo3,                                                                 
-##      comunidad/articulo5}     =&gt; {deporte/articulo2}    3.100823e-05  0.8000000  5.753381
-## 41  {deporte/articulo7,                                                                  
-##      politica/articulo3,                                                                 
-##      comunidad/articulo5}     =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 42  {deporte/articulo5,                                                                  
-##      comunidad/articulo2,                                                                
-##      opinion/articulo5}       =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 43  {deporte/articulo2,                                                                  
-##      politica/articulo4,                                                                 
-##      opinion/articulo2}       =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 44  {deporte/articulo6,                                                                  
-##      variedades/articulo2,                                                               
-##      internacional/articulo8} =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 45  {deporte/articulo2,                                                                  
-##      politica/articulo9,                                                                 
-##      internacional/articulo8} =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 46  {deporte/articulo4,                                                                  
-##      politica/articulo9,                                                                 
-##      internacional/articulo8} =&gt; {deporte/articulo2}    3.100823e-05  0.8000000  5.753381
-## 47  {deporte/articulo1,                                                                  
-##      negocios/articulo3,                                                                 
-##      opinion/articulo8}       =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 48  {deporte/articulo6,                                                                  
-##      opinion/articulo6,                                                                  
-##      opinion/articulo8}       =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 49  {deporte/articulo7,                                                                  
-##      comunidad/articulo3,                                                                
-##      opinion/articulo8}       =&gt; {deporte/articulo5}    3.876029e-05  1.0000000  7.274460
-## 50  {deporte/articulo7,                                                                  
-##      comunidad/articulo3,                                                                
-##      opinion/articulo8}       =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 51  {deporte/articulo8,                                                                  
-##      internacional/articulo2,                                                            
-##      negocios/articulo3}      =&gt; {deporte/articulo3}    3.100823e-05  0.8000000  5.163534
-## 52  {deporte/articulo9,                                                                  
-##      politica/articulo3,                                                                 
-##      internacional/articulo2} =&gt; {deporte/articulo3}    3.100823e-05  0.8000000  5.163534
-## 53  {politica/articulo9,                                                                 
-##      variedades/articulo8,                                                               
-##      negocios/articulo3}      =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 54  {deporte/articulo5,                                                                  
-##      variedades/articulo2,                                                               
-##      negocios/articulo6}      =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 55  {deporte/articulo6,                                                                  
-##      variedades/articulo2,                                                               
-##      negocios/articulo6}      =&gt; {deporte/articulo4}    3.100823e-05  1.0000000  5.812554
-## 56  {deporte/articulo6,                                                                  
-##      variedades/articulo2,                                                               
-##      opinion/articulo9}       =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 57  {deporte/articulo8,                                                                  
-##      politica/articulo9,                                                                 
-##      variedades/articulo2}    =&gt; {deporte/articulo3}    3.100823e-05  1.0000000  6.454418
-## 58  {deporte/articulo5,                                                                  
-##      nacionales/articulo2,                                                               
-##      negocios/articulo3}      =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 59  {deporte/articulo3,                                                                  
-##      internacional/articulo6,                                                            
-##      nacionales/articulo2}    =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 60  {politica/articulo5,                                                                 
-##      variedades/articulo9,                                                               
-##      nacionales/articulo2}    =&gt; {deporte/articulo3}    4.651235e-05  0.8571429  5.532358
-## 61  {deporte/articulo1,                                                                  
-##      nacionales/articulo5,                                                               
-##      nacionales/articulo8}    =&gt; {deporte/articulo9}    3.876029e-05  1.0000000  6.462178
-## 62  {deporte/articulo2,                                                                  
-##      politica/articulo4,                                                                 
-##      negocios/articulo3}      =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 63  {deporte/articulo2,                                                                  
-##      comunidad/articulo9,                                                                
-##      negocios/articulo6}      =&gt; {deporte/articulo7}    4.651235e-05  0.8571429  5.021787
-## 64  {deporte/articulo3,                                                                  
-##      internacional/articulo9,                                                            
-##      nacionales/articulo6}    =&gt; {deporte/articulo1}    6.976852e-05  0.9000000  5.183881
-## 65  {deporte/articulo6,                                                                  
-##      politica/articulo7,                                                                 
-##      nacionales/articulo4}    =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 66  {deporte/articulo9,                                                                  
-##      politica/articulo7,                                                                 
-##      nacionales/articulo4}    =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 67  {deporte/articulo9,                                                                  
-##      politica/articulo7,                                                                 
-##      nacionales/articulo4}    =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 68  {deporte/articulo2,                                                                  
-##      internacional/articulo6,                                                            
-##      nacionales/articulo7}    =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 69  {deporte/articulo7,                                                                  
-##      internacional/articulo6,                                                            
-##      opinion/articulo9}       =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 70  {deporte/articulo2,                                                                  
-##      internacional/articulo3,                                                            
-##      nacionales/articulo7}    =&gt; {deporte/articulo1}    3.876029e-05  0.8333333  4.799890
-## 71  {variedades/articulo3,                                                               
-##      variedades/articulo6,                                                               
-##      nacionales/articulo7}    =&gt; {variedades/articulo9} 3.100823e-05  0.8000000 25.023860
-## 72  {deporte/articulo3,                                                                  
-##      nacionales/articulo7,                                                               
-##      comunidad/articulo9}     =&gt; {deporte/articulo4}    3.876029e-05  0.8333333  4.843795
-## 73  {deporte/articulo9,                                                                  
-##      politica/articulo6,                                                                 
-##      comunidad/articulo6}     =&gt; {deporte/articulo7}    3.876029e-05  0.8333333  4.882293
-## 74  {deporte/articulo5,                                                                  
-##      politica/articulo6,                                                                 
-##      variedades/articulo9}    =&gt; {deporte/articulo8}    3.100823e-05  0.8000000  5.729743
-## 75  {politica/articulo5,                                                                 
-##      politica/articulo6,                                                                 
-##      variedades/articulo6}    =&gt; {deporte/articulo3}    3.100823e-05  0.8000000  5.163534
-## 76  {deporte/articulo1,                                                                  
-##      deporte/articulo5,                                                                  
-##      deporte/articulo9,                                                                  
-##      sucesos/articulo2}       =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 77  {deporte/articulo1,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo9,                                                                  
-##      sucesos/articulo2}       =&gt; {deporte/articulo5}    3.100823e-05  1.0000000  7.274460
-## 78  {deporte/articulo3,                                                                  
-##      deporte/articulo5,                                                                  
-##      deporte/articulo7,                                                                  
-##      sucesos/articulo8}       =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 79  {deporte/articulo2,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo9,                                                                  
-##      sucesos/articulo8}       =&gt; {deporte/articulo8}    3.100823e-05  0.8000000  5.729743
-## 80  {deporte/articulo2,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo9,                                                                  
-##      sucesos/articulo8}       =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 81  {deporte/articulo1,                                                                  
-##      deporte/articulo2,                                                                  
-##      deporte/articulo6,                                                                  
-##      sucesos/articulo8}       =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 82  {variedades/articulo1,                                                               
-##      variedades/articulo3,                                                               
-##      variedades/articulo4,                                                               
-##      opinion/articulo8}       =&gt; {variedades/articulo2} 3.100823e-05  0.8000000 37.431411
-## 83  {variedades/articulo1,                                                               
-##      variedades/articulo2,                                                               
-##      variedades/articulo3,                                                               
-##      opinion/articulo8}       =&gt; {variedades/articulo4} 3.100823e-05  1.0000000 61.398382
-## 84  {variedades/articulo2,                                                               
-##      variedades/articulo3,                                                               
-##      variedades/articulo4,                                                               
-##      opinion/articulo8}       =&gt; {variedades/articulo1} 3.100823e-05  1.0000000 64.146196
-## 85  {variedades/articulo2,                                                               
-##      variedades/articulo5,                                                               
-##      variedades/articulo7,                                                               
-##      variedades/articulo8}    =&gt; {variedades/articulo6} 3.100823e-05  0.8000000 24.670906
-## 86  {deporte/articulo6,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo6,                                                                 
-##      negocios/articulo2}      =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 87  {deporte/articulo4,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo6,                                                                 
-##      negocios/articulo2}      =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 88  {deporte/articulo2,                                                                  
-##      deporte/articulo5,                                                                  
-##      politica/articulo2,                                                                 
-##      negocios/articulo5}      =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 89  {deporte/articulo5,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo2,                                                                 
-##      negocios/articulo5}      =&gt; {deporte/articulo2}    3.100823e-05  0.8000000  5.753381
-## 90  {deporte/articulo1,                                                                  
-##      deporte/articulo3,                                                                  
-##      politica/articulo8,                                                                 
-##      negocios/articulo5}      =&gt; {deporte/articulo7}    3.876029e-05  1.0000000  5.858752
-## 91  {deporte/articulo1,                                                                  
-##      deporte/articulo7,                                                                  
-##      politica/articulo8,                                                                 
-##      negocios/articulo5}      =&gt; {deporte/articulo3}    3.876029e-05  1.0000000  6.454418
-## 92  {deporte/articulo5,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo5,                                                                 
-##      negocios/articulo5}      =&gt; {deporte/articulo2}    3.876029e-05  1.0000000  7.191727
-## 93  {deporte/articulo3,                                                                  
-##      deporte/articulo8,                                                                  
-##      politica/articulo2,                                                                 
-##      comunidad/articulo8}     =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 94  {deporte/articulo2,                                                                  
-##      deporte/articulo7,                                                                  
-##      politica/articulo3,                                                                 
-##      comunidad/articulo5}     =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 95  {deporte/articulo1,                                                                  
-##      deporte/articulo2,                                                                  
-##      politica/articulo3,                                                                 
-##      comunidad/articulo5}     =&gt; {deporte/articulo7}    3.100823e-05  1.0000000  5.858752
-## 96  {deporte/articulo1,                                                                  
-##      deporte/articulo7,                                                                  
-##      politica/articulo3,                                                                 
-##      comunidad/articulo5}     =&gt; {deporte/articulo2}    3.100823e-05  1.0000000  7.191727
-## 97  {deporte/articulo1,                                                                  
-##      deporte/articulo4,                                                                  
-##      politica/articulo2,                                                                 
-##      comunidad/articulo5}     =&gt; {deporte/articulo3}    3.100823e-05  0.8000000  5.163534
-## 98  {deporte/articulo4,                                                                  
-##      deporte/articulo8,                                                                  
-##      politica/articulo2,                                                                 
-##      opinion/articulo2}       =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 99  {deporte/articulo4,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo8,                                                                 
-##      opinion/articulo2}       =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 100 {deporte/articulo4,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo8,                                                                 
-##      opinion/articulo2}       =&gt; {deporte/articulo6}    3.100823e-05  1.0000000  6.485571
-## 101 {deporte/articulo1,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo8,                                                                 
-##      opinion/articulo2}       =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 102 {deporte/articulo4,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo8,                                                                 
-##      opinion/articulo2}       =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 103 {deporte/articulo1,                                                                  
-##      deporte/articulo4,                                                                  
-##      politica/articulo8,                                                                 
-##      opinion/articulo2}       =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 104 {deporte/articulo4,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo8,                                                                 
-##      opinion/articulo2}       =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 105 {deporte/articulo1,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo8,                                                                 
-##      opinion/articulo2}       =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 106 {deporte/articulo1,                                                                  
-##      deporte/articulo4,                                                                  
-##      politica/articulo8,                                                                 
-##      opinion/articulo2}       =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 107 {deporte/articulo5,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo5,                                                                 
-##      internacional/articulo8} =&gt; {deporte/articulo4}    3.100823e-05  1.0000000  5.812554
-## 108 {deporte/articulo5,                                                                  
-##      deporte/articulo9,                                                                  
-##      comunidad/articulo3,                                                                
-##      opinion/articulo8}       =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 109 {deporte/articulo5,                                                                  
-##      deporte/articulo7,                                                                  
-##      comunidad/articulo3,                                                                
-##      opinion/articulo8}       =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 110 {deporte/articulo7,                                                                  
-##      deporte/articulo9,                                                                  
-##      comunidad/articulo3,                                                                
-##      opinion/articulo8}       =&gt; {deporte/articulo5}    3.100823e-05  1.0000000  7.274460
-## 111 {deporte/articulo4,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo2,                                                                 
-##      opinion/articulo8}       =&gt; {deporte/articulo6}    4.651235e-05  0.8571429  5.559061
-## 112 {deporte/articulo1,                                                                  
-##      deporte/articulo3,                                                                  
-##      politica/articulo2,                                                                 
-##      opinion/articulo8}       =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 113 {deporte/articulo3,                                                                  
-##      deporte/articulo7,                                                                  
-##      politica/articulo8,                                                                 
-##      opinion/articulo5}       =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 114 {deporte/articulo2,                                                                  
-##      deporte/articulo5,                                                                  
-##      politica/articulo5,                                                                 
-##      opinion/articulo5}       =&gt; {deporte/articulo3}    3.100823e-05  0.8000000  5.163534
-## 115 {deporte/articulo2,                                                                  
-##      deporte/articulo4,                                                                  
-##      deporte/articulo9,                                                                  
-##      opinion/articulo5}       =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 116 {deporte/articulo5,                                                                  
-##      deporte/articulo6,                                                                  
-##      internacional/articulo2,                                                            
-##      negocios/articulo6}      =&gt; {deporte/articulo3}    3.100823e-05  0.8000000  5.163534
-## 117 {deporte/articulo3,                                                                  
-##      deporte/articulo5,                                                                  
-##      internacional/articulo2,                                                            
-##      negocios/articulo6}      =&gt; {deporte/articulo6}    3.100823e-05  1.0000000  6.485571
-## 118 {deporte/articulo3,                                                                  
-##      deporte/articulo6,                                                                  
-##      internacional/articulo2,                                                            
-##      negocios/articulo6}      =&gt; {deporte/articulo5}    3.100823e-05  0.8000000  5.819568
-## 119 {deporte/articulo2,                                                                  
-##      deporte/articulo5,                                                                  
-##      deporte/articulo8,                                                                  
-##      variedades/articulo8}    =&gt; {deporte/articulo7}    3.876029e-05  0.8333333  4.882293
-## 120 {deporte/articulo2,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo8,                                                                  
-##      variedades/articulo8}    =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 121 {deporte/articulo2,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo8,                                                                  
-##      variedades/articulo8}    =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 122 {deporte/articulo6,                                                                  
-##      deporte/articulo9,                                                                  
-##      variedades/articulo2,                                                               
-##      opinion/articulo6}       =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 123 {deporte/articulo1,                                                                  
-##      deporte/articulo6,                                                                  
-##      variedades/articulo2,                                                               
-##      opinion/articulo6}       =&gt; {deporte/articulo9}    3.100823e-05  1.0000000  6.462178
-## 124 {deporte/articulo1,                                                                  
-##      deporte/articulo9,                                                                  
-##      variedades/articulo2,                                                               
-##      opinion/articulo6}       =&gt; {deporte/articulo6}    3.100823e-05  1.0000000  6.485571
-## 125 {deporte/articulo2,                                                                  
-##      deporte/articulo8,                                                                  
-##      politica/articulo5,                                                                 
-##      variedades/articulo2}    =&gt; {deporte/articulo1}    3.876029e-05  0.8333333  4.799890
-## 126 {deporte/articulo1,                                                                  
-##      deporte/articulo8,                                                                  
-##      politica/articulo5,                                                                 
-##      variedades/articulo2}    =&gt; {deporte/articulo2}    3.876029e-05  1.0000000  7.191727
-## 127 {deporte/articulo4,                                                                  
-##      politica/articulo5,                                                                 
-##      variedades/articulo9,                                                               
-##      nacionales/articulo2}    =&gt; {deporte/articulo3}    3.100823e-05  1.0000000  6.454418
-## 128 {deporte/articulo6,                                                                  
-##      deporte/articulo7,                                                                  
-##      nacionales/articulo5,                                                               
-##      comunidad/articulo9}     =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 129 {deporte/articulo1,                                                                  
-##      deporte/articulo6,                                                                  
-##      nacionales/articulo5,                                                               
-##      comunidad/articulo9}     =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 130 {deporte/articulo1,                                                                  
-##      deporte/articulo7,                                                                  
-##      nacionales/articulo5,                                                               
-##      comunidad/articulo9}     =&gt; {deporte/articulo6}    3.100823e-05  1.0000000  6.485571
-## 131 {deporte/articulo6,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo2,                                                                 
-##      nacionales/articulo5}    =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 132 {deporte/articulo7,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo2,                                                                 
-##      nacionales/articulo5}    =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 133 {deporte/articulo2,                                                                  
-##      deporte/articulo4,                                                                  
-##      deporte/articulo8,                                                                  
-##      nacionales/articulo8}    =&gt; {deporte/articulo1}    4.651235e-05  0.8571429  4.937030
-## 134 {deporte/articulo4,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo1,                                                                 
-##      negocios/articulo3}      =&gt; {deporte/articulo3}    3.100823e-05  0.8000000  5.163534
-## 135 {deporte/articulo3,                                                                  
-##      deporte/articulo4,                                                                  
-##      politica/articulo1,                                                                 
-##      negocios/articulo3}      =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 136 {deporte/articulo3,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo8,                                                                 
-##      negocios/articulo3}      =&gt; {deporte/articulo1}    3.876029e-05  0.8333333  4.799890
-## 137 {deporte/articulo1,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo8,                                                                 
-##      negocios/articulo3}      =&gt; {deporte/articulo3}    3.876029e-05  0.8333333  5.378682
-## 138 {deporte/articulo2,                                                                  
-##      deporte/articulo8,                                                                  
-##      politica/articulo2,                                                                 
-##      negocios/articulo6}      =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 139 {deporte/articulo5,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo5,                                                                 
-##      negocios/articulo6}      =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 140 {deporte/articulo5,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo8,                                                                 
-##      negocios/articulo9}      =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 141 {deporte/articulo3,                                                                  
-##      deporte/articulo5,                                                                  
-##      politica/articulo8,                                                                 
-##      negocios/articulo9}      =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 142 {deporte/articulo5,                                                                  
-##      deporte/articulo7,                                                                  
-##      politica/articulo8,                                                                 
-##      internacional/articulo3} =&gt; {deporte/articulo8}    3.876029e-05  0.8333333  5.968482
-## 143 {deporte/articulo2,                                                                  
-##      deporte/articulo3,                                                                  
-##      nacionales/articulo1,                                                               
-##      nacionales/articulo7}    =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 144 {deporte/articulo3,                                                                  
-##      deporte/articulo6,                                                                  
-##      nacionales/articulo1,                                                               
-##      nacionales/articulo7}    =&gt; {deporte/articulo2}    3.100823e-05  0.8000000  5.753381
-## 145 {deporte/articulo2,                                                                  
-##      deporte/articulo3,                                                                  
-##      politica/articulo4,                                                                 
-##      nacionales/articulo7}    =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 146 {deporte/articulo3,                                                                  
-##      deporte/articulo7,                                                                  
-##      politica/articulo4,                                                                 
-##      nacionales/articulo7}    =&gt; {deporte/articulo2}    3.100823e-05  0.8000000  5.753381
-## 147 {deporte/articulo6,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo4,                                                                 
-##      nacionales/articulo7}    =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 148 {deporte/articulo1,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo4,                                                                 
-##      nacionales/articulo7}    =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 149 {deporte/articulo3,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo4,                                                                 
-##      nacionales/articulo7}    =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 150 {deporte/articulo1,                                                                  
-##      deporte/articulo3,                                                                  
-##      politica/articulo4,                                                                 
-##      nacionales/articulo7}    =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 151 {deporte/articulo4,                                                                  
-##      deporte/articulo7,                                                                  
-##      variedades/articulo6,                                                               
-##      nacionales/articulo7}    =&gt; {deporte/articulo6}    3.100823e-05  1.0000000  6.485571
-## 152 {deporte/articulo3,                                                                  
-##      deporte/articulo4,                                                                  
-##      politica/articulo2,                                                                 
-##      nacionales/articulo7}    =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 153 {deporte/articulo6,                                                                  
-##      deporte/articulo7,                                                                  
-##      politica/articulo8,                                                                 
-##      nacionales/articulo7}    =&gt; {deporte/articulo5}    3.100823e-05  0.8000000  5.819568
-## 154 {deporte/articulo8,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo8,                                                                 
-##      nacionales/articulo7}    =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 155 {deporte/articulo3,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo8,                                                                 
-##      nacionales/articulo7}    =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 156 {deporte/articulo2,                                                                  
-##      deporte/articulo7,                                                                  
-##      politica/articulo5,                                                                 
-##      nacionales/articulo7}    =&gt; {deporte/articulo5}    3.100823e-05  0.8000000  5.819568
-## 157 {deporte/articulo4,                                                                  
-##      deporte/articulo8,                                                                  
-##      politica/articulo5,                                                                 
-##      nacionales/articulo7}    =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 158 {deporte/articulo5,                                                                  
-##      deporte/articulo6,                                                                  
-##      nacionales/articulo1,                                                               
-##      opinion/articulo9}       =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 159 {deporte/articulo1,                                                                  
-##      deporte/articulo5,                                                                  
-##      nacionales/articulo1,                                                               
-##      opinion/articulo9}       =&gt; {deporte/articulo6}    3.100823e-05  1.0000000  6.485571
-## 160 {deporte/articulo2,                                                                  
-##      deporte/articulo6,                                                                  
-##      nacionales/articulo1,                                                               
-##      opinion/articulo9}       =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 161 {deporte/articulo1,                                                                  
-##      deporte/articulo2,                                                                  
-##      nacionales/articulo1,                                                               
-##      opinion/articulo9}       =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 162 {deporte/articulo2,                                                                  
-##      deporte/articulo3,                                                                  
-##      politica/articulo4,                                                                 
-##      nacionales/articulo1}    =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 163 {deporte/articulo2,                                                                  
-##      deporte/articulo5,                                                                  
-##      politica/articulo2,                                                                 
-##      opinion/articulo6}       =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 164 {deporte/articulo3,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo2,                                                                 
-##      opinion/articulo6}       =&gt; {deporte/articulo4}    3.100823e-05  1.0000000  5.812554
-## 165 {deporte/articulo2,                                                                  
-##      deporte/articulo8,                                                                  
-##      politica/articulo4,                                                                 
-##      opinion/articulo9}       =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 166 {deporte/articulo2,                                                                  
-##      deporte/articulo7,                                                                  
-##      politica/articulo4,                                                                 
-##      opinion/articulo9}       =&gt; {deporte/articulo8}    3.100823e-05  0.8000000  5.729743
-## 167 {deporte/articulo5,                                                                  
-##      deporte/articulo7,                                                                  
-##      politica/articulo7,                                                                 
-##      opinion/articulo9}       =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 168 {deporte/articulo1,                                                                  
-##      deporte/articulo5,                                                                  
-##      politica/articulo7,                                                                 
-##      opinion/articulo9}       =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 169 {deporte/articulo1,                                                                  
-##      deporte/articulo7,                                                                  
-##      politica/articulo7,                                                                 
-##      opinion/articulo9}       =&gt; {deporte/articulo5}    3.100823e-05  1.0000000  7.274460
-## 170 {deporte/articulo1,                                                                  
-##      deporte/articulo3,                                                                  
-##      politica/articulo1,                                                                 
-##      opinion/articulo9}       =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 171 {deporte/articulo1,                                                                  
-##      deporte/articulo7,                                                                  
-##      politica/articulo1,                                                                 
-##      opinion/articulo9}       =&gt; {deporte/articulo3}    3.100823e-05  0.8000000  5.163534
-## 172 {deporte/articulo1,                                                                  
-##      deporte/articulo5,                                                                  
-##      politica/articulo5,                                                                 
-##      opinion/articulo9}       =&gt; {deporte/articulo3}    3.100823e-05  0.8000000  5.163534
-## 173 {deporte/articulo6,                                                                  
-##      deporte/articulo8,                                                                  
-##      politica/articulo5,                                                                 
-##      opinion/articulo9}       =&gt; {deporte/articulo1}    3.876029e-05  0.8333333  4.799890
-## 174 {deporte/articulo2,                                                                  
-##      deporte/articulo3,                                                                  
-##      politica/articulo2,                                                                 
-##      opinion/articulo3}       =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 175 {deporte/articulo3,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo2,                                                                 
-##      opinion/articulo3}       =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 176 {deporte/articulo3,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo8,                                                                 
-##      opinion/articulo3}       =&gt; {deporte/articulo4}    3.876029e-05  0.8333333  4.843795
-## 177 {deporte/articulo1,                                                                  
-##      deporte/articulo2,                                                                  
-##      politica/articulo1,                                                                 
-##      politica/articulo4}      =&gt; {deporte/articulo8}    3.100823e-05  1.0000000  7.162179
-## 178 {deporte/articulo9,                                                                  
-##      politica/articulo2,                                                                 
-##      politica/articulo4,                                                                 
-##      politica/articulo8}      =&gt; {deporte/articulo3}    3.100823e-05  0.8000000  5.163534
-## 179 {deporte/articulo3,                                                                  
-##      politica/articulo2,                                                                 
-##      politica/articulo4,                                                                 
-##      politica/articulo8}      =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 180 {deporte/articulo2,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo2,                                                                 
-##      politica/articulo4}      =&gt; {deporte/articulo7}    3.876029e-05  0.8333333  4.882293
-## 181 {deporte/articulo1,                                                                  
-##      deporte/articulo4,                                                                  
-##      politica/articulo7,                                                                 
-##      comunidad/articulo6}     =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 182 {deporte/articulo1,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo1,                                                                 
-##      comunidad/articulo6}     =&gt; {deporte/articulo5}    3.100823e-05  1.0000000  7.274460
-## 183 {deporte/articulo5,                                                                  
-##      deporte/articulo8,                                                                  
-##      politica/articulo8,                                                                 
-##      comunidad/articulo6}     =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 184 {deporte/articulo1,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo8,                                                                 
-##      comunidad/articulo6}     =&gt; {deporte/articulo7}    3.100823e-05  1.0000000  5.858752
-## 185 {deporte/articulo9,                                                                  
-##      politica/articulo2,                                                                 
-##      politica/articulo8,                                                                 
-##      variedades/articulo9}    =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 186 {deporte/articulo4,                                                                  
-##      politica/articulo2,                                                                 
-##      politica/articulo8,                                                                 
-##      variedades/articulo9}    =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 187 {deporte/articulo2,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo5,                                                                 
-##      variedades/articulo9}    =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 188 {deporte/articulo3,                                                                  
-##      deporte/articulo8,                                                                  
-##      politica/articulo5,                                                                 
-##      comunidad/articulo9}     =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 189 {deporte/articulo1,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo5,                                                                 
-##      comunidad/articulo9}     =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 190 {deporte/articulo1,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo1,                                                                 
-##      politica/articulo6}      =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 191 {deporte/articulo1,                                                                  
-##      deporte/articulo4,                                                                  
-##      politica/articulo1,                                                                 
-##      politica/articulo6}      =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 192 {deporte/articulo4,                                                                  
-##      politica/articulo5,                                                                 
-##      politica/articulo6,                                                                 
-##      politica/articulo8}      =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 193 {deporte/articulo1,                                                                  
-##      politica/articulo5,                                                                 
-##      politica/articulo6,                                                                 
-##      politica/articulo8}      =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 194 {deporte/articulo1,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo6,                                                                 
-##      politica/articulo8}      =&gt; {deporte/articulo4}    3.876029e-05  1.0000000  5.812554
-## 195 {deporte/articulo1,                                                                  
-##      deporte/articulo5,                                                                  
-##      politica/articulo5,                                                                 
-##      politica/articulo6}      =&gt; {deporte/articulo3}    3.100823e-05  0.8000000  5.163534
-## 196 {deporte/articulo4,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo3,                                                                 
-##      politica/articulo7}      =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 197 {deporte/articulo1,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo3,                                                                 
-##      politica/articulo7}      =&gt; {deporte/articulo4}    3.100823e-05  1.0000000  5.812554
-## 198 {deporte/articulo2,                                                                  
-##      deporte/articulo7,                                                                  
-##      politica/articulo2,                                                                 
-##      variedades/articulo3}    =&gt; {deporte/articulo5}    3.100823e-05  0.8000000  5.819568
-## 199 {deporte/articulo1,                                                                  
-##      deporte/articulo5,                                                                  
-##      politica/articulo2,                                                                 
-##      variedades/articulo3}    =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 200 {deporte/articulo2,                                                                  
-##      deporte/articulo3,                                                                  
-##      politica/articulo1,                                                                 
-##      variedades/articulo6}    =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 201 {deporte/articulo1,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo2,                                                                 
-##      variedades/articulo6}    =&gt; {deporte/articulo7}    3.876029e-05  0.8333333  4.882293
-## 202 {deporte/articulo3,                                                                  
-##      deporte/articulo7,                                                                  
-##      politica/articulo2,                                                                 
-##      variedades/articulo6}    =&gt; {deporte/articulo1}    3.876029e-05  0.8333333  4.799890
-## 203 {deporte/articulo2,                                                                  
-##      deporte/articulo7,                                                                  
-##      politica/articulo2,                                                                 
-##      politica/articulo7}      =&gt; {deporte/articulo9}    3.100823e-05  0.8000000  5.169743
-## 204 {deporte/articulo7,                                                                  
-##      politica/articulo5,                                                                 
-##      politica/articulo7,                                                                 
-##      politica/articulo8}      =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 205 {deporte/articulo2,                                                                  
-##      deporte/articulo3,                                                                  
-##      politica/articulo5,                                                                 
-##      politica/articulo7}      =&gt; {deporte/articulo6}    3.876029e-05  0.8333333  5.404642
-## 206 {deporte/articulo5,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo2,                                                                 
-##      nacionales/articulo9}    =&gt; {deporte/articulo2}    3.100823e-05  1.0000000  7.191727
-## 207 {deporte/articulo2,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo2,                                                                 
-##      nacionales/articulo9}    =&gt; {deporte/articulo5}    3.100823e-05  0.8000000  5.819568
-## 208 {deporte/articulo2,                                                                  
-##      deporte/articulo3,                                                                  
-##      politica/articulo8,                                                                 
-##      nacionales/articulo9}    =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 209 {deporte/articulo2,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo5,                                                                 
-##      nacionales/articulo9}    =&gt; {deporte/articulo3}    3.100823e-05  0.8000000  5.163534
-## 210 {deporte/articulo3,                                                                  
-##      deporte/articulo4,                                                                  
-##      politica/articulo1,                                                                 
-##      politica/articulo2}      =&gt; {deporte/articulo6}    3.876029e-05  0.8333333  5.404642
-## 211 {deporte/articulo1,                                                                  
-##      deporte/articulo5,                                                                  
-##      politica/articulo5,                                                                 
-##      politica/articulo9}      =&gt; {deporte/articulo6}    3.100823e-05  1.0000000  6.485571
-## 212 {deporte/articulo3,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo7,                                                                  
-##      deporte/articulo8,                                                                  
-##      comunidad/articulo8}     =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 213 {deporte/articulo1,                                                                  
-##      deporte/articulo3,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo8,                                                                  
-##      comunidad/articulo8}     =&gt; {deporte/articulo7}    3.100823e-05  1.0000000  5.858752
-## 214 {deporte/articulo1,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo7,                                                                  
-##      deporte/articulo8,                                                                  
-##      comunidad/articulo8}     =&gt; {deporte/articulo3}    3.100823e-05  0.8000000  5.163534
-## 215 {deporte/articulo1,                                                                  
-##      deporte/articulo3,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo7,                                                                  
-##      comunidad/articulo8}     =&gt; {deporte/articulo8}    3.100823e-05  0.8000000  5.729743
-## 216 {deporte/articulo4,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo8,                                                                 
-##      opinion/articulo2}       =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 217 {deporte/articulo1,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo8,                                                                 
-##      opinion/articulo2}       =&gt; {deporte/articulo4}    3.100823e-05  1.0000000  5.812554
-## 218 {deporte/articulo1,                                                                  
-##      deporte/articulo4,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo8,                                                                 
-##      opinion/articulo2}       =&gt; {deporte/articulo9}    3.100823e-05  1.0000000  6.462178
-## 219 {deporte/articulo1,                                                                  
-##      deporte/articulo4,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo8,                                                                 
-##      opinion/articulo2}       =&gt; {deporte/articulo6}    3.100823e-05  1.0000000  6.485571
-## 220 {deporte/articulo1,                                                                  
-##      deporte/articulo4,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo9,                                                                  
-##      opinion/articulo2}       =&gt; {politica/articulo8}   3.100823e-05  1.0000000 14.150724
-## 221 {deporte/articulo2,                                                                  
-##      deporte/articulo3,                                                                  
-##      deporte/articulo7,                                                                  
-##      deporte/articulo8,                                                                  
-##      negocios/articulo6}      =&gt; {deporte/articulo1}    3.100823e-05  1.0000000  5.759868
-## 222 {deporte/articulo1,                                                                  
-##      deporte/articulo2,                                                                  
-##      deporte/articulo3,                                                                  
-##      deporte/articulo8,                                                                  
-##      negocios/articulo6}      =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 223 {deporte/articulo2,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo7,                                                                  
-##      deporte/articulo9,                                                                  
-##      negocios/articulo6}      =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 224 {deporte/articulo1,                                                                  
-##      deporte/articulo3,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo9,                                                                  
-##      negocios/articulo6}      =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002
-## 225 {deporte/articulo3,                                                                  
-##      deporte/articulo4,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo9,                                                                  
-##      negocios/articulo9}      =&gt; {deporte/articulo2}    3.100823e-05  0.8000000  5.753381
-## 226 {deporte/articulo1,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo7,                                                                  
-##      deporte/articulo9,                                                                  
-##      internacional/articulo9} =&gt; {deporte/articulo8}    3.100823e-05  0.8000000  5.729743
-## 227 {deporte/articulo2,                                                                  
-##      deporte/articulo5,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo7,                                                                  
-##      nacionales/articulo1}    =&gt; {deporte/articulo1}    3.876029e-05  0.8333333  4.799890
-## 228 {deporte/articulo2,                                                                  
-##      deporte/articulo4,                                                                  
-##      deporte/articulo5,                                                                  
-##      deporte/articulo6,                                                                  
-##      nacionales/articulo1}    =&gt; {deporte/articulo1}    3.876029e-05  1.0000000  5.759868
-## 229 {deporte/articulo2,                                                                  
-##      deporte/articulo3,                                                                  
-##      deporte/articulo4,                                                                  
-##      deporte/articulo5,                                                                  
-##      nacionales/articulo1}    =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 230 {deporte/articulo1,                                                                  
-##      deporte/articulo3,                                                                  
-##      deporte/articulo4,                                                                  
-##      deporte/articulo5,                                                                  
-##      nacionales/articulo1}    =&gt; {deporte/articulo2}    3.100823e-05  0.8000000  5.753381
-## 231 {deporte/articulo2,                                                                  
-##      deporte/articulo4,                                                                  
-##      deporte/articulo5,                                                                  
-##      deporte/articulo7,                                                                  
-##      nacionales/articulo1}    =&gt; {deporte/articulo1}    4.651235e-05  0.8571429  4.937030
-## 232 {deporte/articulo1,                                                                  
-##      deporte/articulo2,                                                                  
-##      deporte/articulo4,                                                                  
-##      deporte/articulo7,                                                                  
-##      nacionales/articulo1}    =&gt; {deporte/articulo5}    4.651235e-05  0.8571429  6.235251
-## 233 {deporte/articulo4,                                                                  
-##      deporte/articulo5,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo7,                                                                  
-##      nacionales/articulo1}    =&gt; {deporte/articulo1}    3.100823e-05  0.8000000  4.607894
-## 234 {deporte/articulo1,                                                                  
-##      deporte/articulo4,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo9,                                                                  
-##      opinion/articulo3}       =&gt; {deporte/articulo3}    3.100823e-05  0.8000000  5.163534
-## 235 {deporte/articulo1,                                                                  
-##      deporte/articulo3,                                                                  
-##      deporte/articulo4,                                                                  
-##      deporte/articulo9,                                                                  
-##      opinion/articulo3}       =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 236 {deporte/articulo1,                                                                  
-##      deporte/articulo3,                                                                  
-##      deporte/articulo4,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo6}      =&gt; {deporte/articulo6}    3.876029e-05  0.8333333  5.404642
-## 237 {deporte/articulo1,                                                                  
-##      deporte/articulo2,                                                                  
-##      deporte/articulo8,                                                                  
-##      deporte/articulo9,                                                                  
-##      nacionales/articulo3}    =&gt; {deporte/articulo6}    3.100823e-05  0.8000000  5.188457
-## 238 {deporte/articulo1,                                                                  
-##      deporte/articulo2,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo9,                                                                  
-##      nacionales/articulo3}    =&gt; {deporte/articulo8}    3.100823e-05  0.8000000  5.729743
-## 239 {deporte/articulo1,                                                                  
-##      deporte/articulo6,                                                                  
-##      deporte/articulo8,                                                                  
-##      deporte/articulo9,                                                                  
-##      nacionales/articulo3}    =&gt; {deporte/articulo2}    3.100823e-05  1.0000000  7.191727
-## 240 {deporte/articulo3,                                                                  
-##      deporte/articulo5,                                                                  
-##      deporte/articulo7,                                                                  
-##      deporte/articulo9,                                                                  
-##      comunidad/articulo3}     =&gt; {deporte/articulo4}    3.100823e-05  1.0000000  5.812554
-## 241 {deporte/articulo3,                                                                  
-##      deporte/articulo4,                                                                  
-##      deporte/articulo7,                                                                  
-##      deporte/articulo9,                                                                  
-##      comunidad/articulo3}     =&gt; {deporte/articulo5}    3.100823e-05  0.8000000  5.819568
-## 242 {deporte/articulo1,                                                                  
-##      deporte/articulo2,                                                                  
-##      deporte/articulo4,                                                                  
-##      deporte/articulo6,                                                                  
-##      politica/articulo9}      =&gt; {deporte/articulo3}    3.100823e-05  1.0000000  6.454418
-## 243 {deporte/articulo3,                                                                  
-##      deporte/articulo7,                                                                  
-##      deporte/articulo9,                                                                  
-##      politica/articulo2,                                                                 
-##      politica/articulo8}      =&gt; {deporte/articulo4}    3.100823e-05  0.8000000  4.650043
-## 244 {deporte/articulo3,                                                                  
-##      deporte/articulo5,                                                                  
-##      deporte/articulo8,                                                                  
-##      politica/articulo2,                                                                 
-##      politica/articulo5}      =&gt; {deporte/articulo7}    3.100823e-05  0.8000000  4.687002</code></pre>
+## checking subsets of size 1 2 3 4 5 6 7 8 done [0.06s].
+## writing ... [8756 rule(s)] done [0.01s].
+## creating S4 object  ... done [0.02s].
+##   items              
+## 1 {deporte/articulo8}</code></pre>
+<pre><code>##                 items
+## 1 {deporte/articulo8}</code></pre>
+</div>
 </div>
 <div id="actividad-4" class="section level2">
 <h2>Actividad 4</h2>
@@ -1293,33 +384,23 @@ periodico[1:10,c(&quot;items&quot;,&quot;estadia&quot;)]</code></pre>
 <h3>10 visitas con menor tiempo de estadia</h3>
 <pre class="r"><code>periodico &lt;- periodico[order(periodico$estadia, decreasing = F), ]
 periodico[1:10,c(&quot;items&quot;,&quot;estadia&quot;)]</code></pre>
-<pre><code>##                                                                             items
-## 1000                     deporte/articulo8,politica/articulo2,comunidad/articulo5
-## 1172                                       deporte/articulo1,nacionales/articulo2
-## 2144                                                           politica/articulo2
-## 4698                    deporte/articulo7,politica/articulo5,variedades/articulo6
-## 5216     deporte/articulo5,deporte/articulo7,deporte/articulo8,politica/articulo5
-## 5765                      deporte/articulo3,politica/articulo9,negocios/articulo9
-## 6258                       deporte/articulo4,deporte/articulo7,politica/articulo6
-## 11346                                         deporte/articulo7,deporte/articulo9
-## 12413                                        deporte/articulo9,negocios/articulo5
-## 13046 deporte/articulo1,deporte/articulo4,nacionales/articulo5,negocios/articulo6
-##       estadia
-## 1000  21 secs
-## 1172  21 secs
-## 2144  21 secs
-## 4698  21 secs
-## 5216  21 secs
-## 5765  21 secs
-## 6258  21 secs
-## 11346 21 secs
-## 12413 21 secs
-## 13046 21 secs</code></pre>
+<pre><code>##                       items estadia
+## 1245   nacionales/articulo6 20 secs
+## 21474    politica/articulo1 20 secs
+## 27925     deporte/articulo6 20 secs
+## 29821    politica/articulo2 20 secs
+## 41698    politica/articulo5 20 secs
+## 52361    negocios/articulo9 20 secs
+## 68219     deporte/articulo1 20 secs
+## 111632    sucesos/articulo4 20 secs
+## 112705 variedades/articulo6 20 secs
+## 2144     politica/articulo2 21 secs</code></pre>
 </div>
 <div id="actividad-5" class="section level2">
 <h2>Actividad 5</h2>
-<pre class="r"><code>itemFrequencyPlot(trans, topN = 10, &quot;absolute&quot;)</code></pre>
-<p><img src="data:image/png;base64,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" title alt width="672" /></p>
+<pre class="r"><code>trans &lt;- as(nuevo, &quot;transactions&quot;)
+itemFrequencyPlot(trans, topN = 10, &quot;absolute&quot;)</code></pre>
+<p><img src="data:image/png;base64,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" title alt width="672" /></p>
 </div>
 </div>
 
