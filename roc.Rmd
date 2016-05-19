@@ -1,3 +1,14 @@
+---
+title: "roc"
+author: "Miguel Figueira"
+date: "18 de mayo de 2016"
+output: html_document
+---
+
+# Definición de la Función
+Nota: solo definida para 2 clases
+
+```{r}
 generate_ROC <-  function(scores, real, target){
   # Generar curva
   
@@ -52,3 +63,15 @@ generate_ROC <-  function(scores, real, target){
   lab <- append(lab,sort(unique(scores),decreasing = T))
   text(ejex, ejey, labels=lab, cex= 0.7, pos = 2)
 }
+```
+
+
+# Prueba
+```{r}
+scores = c(0.9, 0.8, 0.7, 0.6, 0.55, 0.54, 0.53, 0.52, 0.5, 0.5,0.5, 0.5, 0.38, 0.37, 0.36, 0.35, 0.34, 0.33, 0.30, 0.1)
+target = 2
+real = c(2,2,1, 2, 2, 2, 2, 1,2, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1)
+
+generate_ROC(scores,real,target)
+```
+
